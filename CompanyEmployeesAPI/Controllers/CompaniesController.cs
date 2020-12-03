@@ -39,9 +39,16 @@ namespace CompanyEmployeesAPI.Controllers
 
         // GET api/<CompaniesController>/5
         [HttpGet("{id}")]
-        public string Get(int id)
+        public IActionResult GetCompany(Guid id)
         {
-            return "value";
+            var company = _repository.Company.GetCompany(id, false);
+            if (company != null)
+            {
+                var companyDto = _mapper.Map<CompanyDto>(company);
+                return Ok(companyDto);
+            }
+            _logger.LogInfo($"Company with id: {id} doesn't exist in the database.");
+            return NotFound();
         }
 
         // POST api/<CompaniesController>

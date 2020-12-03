@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Entities;
 using Entities.DataTransferObjects;
 using Entities.Models;
 
@@ -10,6 +11,8 @@ namespace CompanyEmployeesAPI.AutoMapper
         {
             CreateMap<Company, CompanyDto>().ForMember(c => c.FullAddress,
                 options => options.MapFrom(x => string.Join(' ', x.Address, x.Country)));
+
+            CreateMap<Employee, EmployeeDto>();
         }
     }
 }
