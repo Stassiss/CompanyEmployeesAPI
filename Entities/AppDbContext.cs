@@ -1,8 +1,6 @@
-﻿using Entities.Models;
+﻿using Entities.Configurations;
+using Entities.Models;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Entities
 {
@@ -11,8 +9,14 @@ namespace Entities
         public AppDbContext(DbContextOptions options) : base(options)
         {
         }
-        public DbSet<Company> Companies { get; set; } 
-        public DbSet<Employee> Employees { get; set; } 
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.ApplyConfiguration(new CompanyConfigurations());
+            modelBuilder.ApplyConfiguration(new EmployeeConfiguration());
+        }
+
+        public DbSet<Company> Companies { get; set; }
+        public DbSet<Employee> Employees { get; set; }
 
     }
 }
