@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Contracts;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -11,21 +12,32 @@ namespace CompanyEmployeesAPI.Controllers
     [Route("[controller]")]
     public class WeatherForecastController : ControllerBase
     {
+        public WeatherForecastController(ILoggerManager logger)
+        {
+            _logger = logger;
+        }
         private static readonly string[] Summaries = new[]
         {
             "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
         };
 
-        private readonly ILogger<WeatherForecastController> _logger;
+        private readonly ILoggerManager _logger;
 
-        public WeatherForecastController(ILogger<WeatherForecastController> logger)
+        [HttpGet("values")]
+        public IEnumerable<string> GetValues()
         {
-            _logger = logger;
+            _logger.LogInfo("Here is info message from our values controller.");
+            _logger.LogDebug("Here is debug message from our values controller.");
+            _logger.LogWarn("Here is warn message from our values controller.");
+            _logger.LogError("Here is an error message from our values controller.");
+            return new string[] { "value1", "value2" };
         }
 
         [HttpGet]
         public IEnumerable<WeatherForecast> Get()
         {
+
+
             var rng = new Random();
             return Enumerable.Range(1, 5).Select(index => new WeatherForecast
             {
