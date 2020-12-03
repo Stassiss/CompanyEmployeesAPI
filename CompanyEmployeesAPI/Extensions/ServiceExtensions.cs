@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Repository;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -35,7 +36,8 @@ namespace CompanyEmployeesAPI.Extensions
             services.AddDbContext<AppDbContext>(options =>
             options.UseSqlServer(configuration.GetConnectionString("sqlConnection"), b =>
                                  b.MigrationsAssembly("CompanyEmployeesAPI")));
-
+        public static void ConfigureRepositoryManager(this IServiceCollection services) =>
+            services.AddScoped<IRepositoryManager, RepositoryManager>();
 
     }
 }

@@ -12,9 +12,10 @@ namespace CompanyEmployeesAPI.Controllers
     [Route("[controller]")]
     public class WeatherForecastController : ControllerBase
     {
-        public WeatherForecastController(ILoggerManager logger)
+        public WeatherForecastController(ILoggerManager logger,IRepositoryManager repository)
         {
             _logger = logger;
+            _repository = repository;
         }
         private static readonly string[] Summaries = new[]
         {
@@ -22,10 +23,12 @@ namespace CompanyEmployeesAPI.Controllers
         };
 
         private readonly ILoggerManager _logger;
+        private readonly IRepositoryManager _repository;
 
         [HttpGet("values")]
         public IEnumerable<string> GetValues()
         {
+            
             _logger.LogInfo("Here is info message from our values controller.");
             _logger.LogDebug("Here is debug message from our values controller.");
             _logger.LogWarn("Here is warn message from our values controller.");

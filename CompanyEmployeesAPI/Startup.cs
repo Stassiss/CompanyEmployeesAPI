@@ -14,7 +14,7 @@ namespace CompanyEmployeesAPI
     {
         public Startup(IConfiguration configuration)
         {
-            LogManager.LoadConfiguration(string.Concat(Directory.GetCurrentDirectory(),"/nlog.config"));
+            LogManager.LoadConfiguration(string.Concat(Directory.GetCurrentDirectory(), "/nlog.config"));
             Configuration = configuration;
         }
 
@@ -27,6 +27,7 @@ namespace CompanyEmployeesAPI
             services.ConfigureIISIntegration();
             services.ConfigureLoggerService();
             services.ConfigureDbContext(Configuration);
+            services.ConfigureRepositoryManager();
             services.AddControllers();
         }
 
