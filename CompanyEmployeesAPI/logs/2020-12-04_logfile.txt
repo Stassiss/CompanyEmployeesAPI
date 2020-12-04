@@ -147,3 +147,4 @@
    at Microsoft.AspNetCore.Diagnostics.ExceptionHandlerMiddleware.<Invoke>g__Awaited|6_0(ExceptionHandlerMiddleware middleware, HttpContext context, Task task)
 2020-12-04 11:43:56.5400 INFO Employee with id: 86dba8c0-d178-41e7-938c-ed49778fb52c doesn't exist in the database.
 2020-12-04 11:44:06.5776 INFO Company with id: c9d4c053-49b6-410c-bc78-2d54a9991872 doesn't exist in the database.
+2020-12-04 16:22:12.2915 INFO Company with id: 0ad5b971-ff51-414d-af01-34187e407557 doesn't exist in the database.
