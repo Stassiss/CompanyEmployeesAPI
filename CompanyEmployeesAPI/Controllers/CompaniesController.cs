@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
+using CompanyEmployeesAPI.ModelBinders;
 using Contracts;
 using Entities.DataTransferObjects;
+using Entities.Models;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -26,19 +28,10 @@ namespace CompanyEmployeesAPI.Controllers
             _repository = repository;
             _mapper = mapper;
         }
-        // GET: api/<CompaniesController>
-        [HttpGet]
-        public IActionResult GetCompanies()
-        {
 
-            var companies = _repository.Company.GetAllCompanies(trackChanges: false);
-            var companiesDto = _mapper.Map<IEnumerable<CompanyDto>>(companies);
 
-            return Ok(companiesDto);
-        }
-
-        // GET api/<CompaniesController>/5
-        [HttpGet("{id}")]
+        // GET api/companies/5
+        [HttpGet("{id}", Name = "CompanyById")]
         public IActionResult GetCompany(Guid id)
         {
             var company = _repository.Company.GetCompany(id, false);
@@ -50,20 +43,84 @@ namespace CompanyEmployeesAPI.Controllers
             _logger.LogInfo($"Company with id: {id} doesn't exist in the database.");
             return NotFound();
         }
-
-        // POST api/<CompaniesController>
-        [HttpPost]
-        public void Post([FromBody] string value)
+        // GET: api/companies
+        [HttpGet]
+        public IActionResult GetCompanies()
         {
+
+            var companies = _repository.Company.GetAllCompanies(trackChanges: false);
+            var companiesDto = _mapper.Map<IEnumerable<CompanyDto>>(companies);
+
+            return Ok(companiesDto);
+        }
+        // GET: api/companies/collection/({ids})
+        [HttpGet("collection/({ids})", Name = "CompanyCollection")]
+        public IActionResult GetCompanyCollection([ModelBinder(BinderType =
+                            typeof(ArrayModelBinder))]IEnumerable<Guid> ids)
+        {
+            if (ids == null)
+            {
+                _logger.LogError("Parameter ids is null");
+                return BadRequest("Parameter ids is null");
+            }
+            var companyEntities = _repository.Company.GetByIds(ids, trackChanges: false);
+            if (ids.Count() != companyEntities.Count())
+            {
+                _logger.LogError("Some ids are not valid in a collection");
+                return NotFound();
+            }
+            var companiesToReturn = _mapper.Map<IEnumerable<CompanyDto>>(companyEntities);
+            return Ok(companiesToReturn);
         }
 
-        // PUT api/<CompaniesController>/5
+        // POST api/companies
+        [HttpPost]
+        public IActionResult CreateCompany([FromBody] CompanyForCreationDto company)
+        {
+            if (company == null)
+            {
+                _logger.LogError("CompanyForCreationDto object sent from client is null.");
+                return BadRequest("CompanyForCreationDto object is null");
+            }
+
+            var companyEntity = _mapper.Map<Company>(company);
+            _repository.Company.CreateCompany(companyEntity);
+            _repository.Save();
+            var companyToReturn = _mapper.Map<CompanyDto>(companyEntity);
+
+            return CreatedAtRoute("CompanyById", new { id = companyToReturn.Id }, companyToReturn);
+        }
+
+        // POST api/companies/collection
+        [HttpPost("collection")]
+        public IActionResult CreateCompanyCollection([FromBody] IEnumerable<CompanyForCreationDto> companyCollection)
+        {
+            if (companyCollection == null)
+            {
+                _logger.LogError("Company collection sent from client is null.");
+                return BadRequest("Company collection is null");
+            }
+            var companyEntities = _mapper.Map<IEnumerable<Company>>(companyCollection);
+            foreach (var company in companyEntities)
+            {
+                _repository.Company.CreateCompany(company);
+            }
+            _repository.Save();
+            var companyCollectionToReturn =
+           _mapper.Map<IEnumerable<CompanyDto>>(companyEntities);
+            var ids = string.Join(",", companyCollectionToReturn.Select(c => c.Id));
+            return CreatedAtRoute("CompanyCollection", new { ids },
+           companyCollectionToReturn);
+        }
+
+
+        // PUT api/companies/5
         [HttpPut("{id}")]
         public void Put(int id, [FromBody] string value)
         {
         }
 
-        // DELETE api/<CompaniesController>/5
+        // DELETE api/companies/5
         [HttpDelete("{id}")]
         public void Delete(int id)
         {
