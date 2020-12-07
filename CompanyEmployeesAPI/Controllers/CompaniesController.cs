@@ -3,6 +3,7 @@ using CompanyEmployeesAPI.ModelBinders;
 using Contracts;
 using Entities.DataTransferObjects;
 using Entities.Models;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -134,6 +135,7 @@ namespace CompanyEmployeesAPI.Controllers
             return NoContent();
         }
 
+        
 
 
         // DELETE api/companies/5
