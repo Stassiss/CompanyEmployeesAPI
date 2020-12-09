@@ -22,13 +22,16 @@ namespace CompanyEmployeesAPI.Controllers
         private readonly ILoggerManager _logger;
         private readonly IMapper _mapper;
         private readonly IRepositoryManager _repository;
+        private readonly IDataShaper<EmployeeDto> _dataShaper;
 
         public EmployeesController(ILoggerManager logger,
-           IMapper mapper, IRepositoryManager repository)
+           IMapper mapper, IRepositoryManager repository,
+           IDataShaper<EmployeeDto> dataShaper)
         {
             _logger = logger;
             _mapper = mapper;
             _repository = repository;
+            _dataShaper = dataShaper;
         }
 
 
@@ -53,7 +56,7 @@ namespace CompanyEmployeesAPI.Controllers
 
 
             var employeesDto = _mapper.Map<IEnumerable<EmployeeDto>>(employeesFromDb);
-            return Ok(employeesDto);
+            return Ok(_dataShaper.ShapeData(employeesDto, employeeParameters.Fields));
         }
 
         // GET api/companies/{companyId}/employees/5
