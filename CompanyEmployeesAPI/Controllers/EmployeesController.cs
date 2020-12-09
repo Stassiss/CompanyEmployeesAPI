@@ -3,8 +3,10 @@ using CompanyEmployeesAPI.ActionFilters;
 using Contracts;
 using Entities;
 using Entities.DataTransferObjects;
+using Entities.RequestFeatures;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -34,7 +36,7 @@ namespace CompanyEmployeesAPI.Controllers
 
         // GET: api/companies/{companyId}/employees
         [HttpGet]
-        public async Task<IActionResult> GetEmployeesForCompany(Guid companyId)
+        public async Task<IActionResult> GetEmployeesForCompany(Guid companyId, [FromQuery] EmployeeParameters employeeParameters)
         {
             var company = await _repository.Company.GetCompanyAsync(companyId, false);
             if (company == null)
@@ -42,48 +44,51 @@ namespace CompanyEmployeesAPI.Controllers
                 _logger.LogInfo($"Company with id: {companyId} doesn't exist in the database.");
                 return NotFound();
             }
+            var employeesFromDb = await _repository.Employee.GetEmployeesAsync(companyId,
+                                employeeParameters, trackChanges: false);
+            Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(employeesFromDb.MetaData));
 
-            var employeesFromDb = await _repository.Employee.GetEmployeesAsync(companyId, false);
+
             var employeesDto = _mapper.Map<IEnumerable<EmployeeDto>>(employeesFromDb);
             return Ok(employeesDto);
         }
 
         // GET api/companies/{companyId}/employees/5
-        [HttpGet("{id}", Name = "GetEmployee")]
+        [HttpGet("{id}", Name = "Employees")]
         public async Task<IActionResult> GetEmployee(Guid companyId, Guid id)
         {
-            var company = await _repository.Company.GetCompanyAsync(companyId, false);
+            var company = await _repository.Company.GetCompanyAsync(companyId, trackChanges: false);
             if (company == null)
             {
                 _logger.LogInfo($"Company with id: {companyId} doesn't exist in the database.");
                 return NotFound();
             }
 
-            var employeeDb = _repository.Employee.GetEmployeeAsync(companyId, id, false);
+            var employeeDb = await _repository.Employee.GetEmployeeAsync(companyId, id, trackChanges: false);
             if (employeeDb == null)
             {
                 _logger.LogInfo($"Employee with id: {id} doesn't exist in the database.");
                 return NotFound();
             }
 
-            var employeeDto = _mapper.Map<EmployeeDto>(employeeDb);
-            return Ok(employeeDto);
+            var employee = _mapper.Map<EmployeeDto>(employeeDb);
+
+            return Ok(employee);
         }
 
         // POST "api/companies/{companyId}/employees"
         [HttpPost]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
 
-        public async Task<IActionResult> CreateEmployeeForCompany(Guid companyId, [FromBody] EmployeeForCreationDto employee)
+        public async Task<IActionResult> CreateEmployee(Guid companyId, [FromBody] EmployeeForCreationDto employee)
         {
-            var company = await _repository.Company.GetCompanyAsync(companyId, trackChanges: false);
 
             var employeeEntity = _mapper.Map<Employee>(employee);
 
             _repository.Employee.CreateEmployeeForCompany(companyId, employeeEntity);
             await _repository.SaveAsync();
             var employeeToReturn = _mapper.Map<EmployeeDto>(employeeEntity);
-            return CreatedAtRoute("GetEmployee", new { id = employeeToReturn.Id }, employeeToReturn);
+            return Created("Employees", employeeToReturn);
 
         }
 
