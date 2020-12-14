@@ -1,4 +1,5 @@
 using AutoMapper;
+using CompanyEmployees.Utility;
 using CompanyEmployeesAPI.ActionFilters;
 using CompanyEmployeesAPI.Extensions;
 using Contracts;
@@ -46,14 +47,14 @@ namespace CompanyEmployeesAPI
             {
                 options.SuppressModelStateInvalidFilter = true;
             });
+            services.AddCustomMediaTypes();
+
             services.AddScoped<ValidationFilterAttribute>();
             services.AddScoped<ValidateCompanyExistsAttribute>();
             services.AddScoped<ValidateEmployeeForCompanyExistsAttribute>();
             services.AddScoped<IDataShaper<EmployeeDto>, DataShaper<EmployeeDto>>();
-
-
-
-
+            services.AddScoped<ValidateMediaTypeAttribute>();
+            services.AddScoped<EmployeeLinks>();
 
         }
 
