@@ -31,6 +31,7 @@ namespace CompanyEmployeesAPI
         public void ConfigureServices(IServiceCollection services)
         {
             services.ConfigureCors();
+            services.ConfigureAuthenticationHandler();
             services.ConfigureIISIntegration();
             services.ConfigureLoggerService();
             services.ConfigureDbContext(Configuration);
@@ -79,7 +80,7 @@ namespace CompanyEmployeesAPI
             });
 
             app.UseRouting();
-
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>

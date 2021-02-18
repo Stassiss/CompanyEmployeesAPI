@@ -1,6 +1,7 @@
 ﻿using CompanyEmployeesAPI.OutFormatter;
 using Contracts;
 using Entities;
+using IdentityServer4.AccessTokenValidation;
 using LoggerService;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
@@ -63,6 +64,14 @@ namespace CompanyEmployeesAPI.Extensions
                 }
             });
         }
+        public static void ConfigureAuthenticationHandler(this IServiceCollection services) =>
+            services
+             .AddAuthentication(IdentityServerAuthenticationDefaults.AuthenticationScheme)
+             .AddIdentityServerAuthentication(opt =>
+             {
+                 opt.Authority = "https://localhost:5005";
+                 opt.ApiName = "companyemployeeapi";
+             });
 
 
 

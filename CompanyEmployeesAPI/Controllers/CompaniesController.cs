@@ -4,6 +4,7 @@ using CompanyEmployeesAPI.ModelBinders;
 using Contracts;
 using Entities.DataTransferObjects;
 using Entities.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -48,6 +49,7 @@ namespace CompanyEmployeesAPI.Controllers
         }
         // GET: api/companies
         [HttpGet]
+        [Authorize(Roles = "Administrator")]
         public async Task<IActionResult> GetCompanies()
         {
             var companies = await _repository.Company.GetAllCompaniesAsync(trackChanges: false);
