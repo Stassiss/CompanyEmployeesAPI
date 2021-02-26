@@ -1,16 +1,21 @@
 ﻿using CompanyEmployeesAPI.OutFormatter;
 using Contracts;
 using Entities;
+using Entities.Models;
 using IdentityServer4.AccessTokenValidation;
 using LoggerService;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
 using Repository;
 using System.Linq;
+using System.Text;
 
 namespace CompanyEmployeesAPI.Extensions
 {
@@ -64,16 +69,41 @@ namespace CompanyEmployeesAPI.Extensions
                 }
             });
         }
-        public static void ConfigureAuthenticationHandler(this IServiceCollection services) =>
-            services
-             .AddAuthentication(IdentityServerAuthenticationDefaults.AuthenticationScheme)
-             .AddIdentityServerAuthentication(opt =>
-             {
-                 opt.Authority = "https://localhost:5005";
-                 opt.ApiName = "companyemployeeapi";
-             });
+
+        public static void ConfigureIdentity(this IServiceCollection services, IConfiguration configuration)
+        {
+            services.AddDbContext<UserContext>(options =>
+            options.UseSqlServer(configuration.GetConnectionString("identityConnection"), b =>
+             b.MigrationsAssembly("CompanyEmployeesAPI")));
+            services.AddIdentity<User, IdentityRole>(option =>
+            {
+                option.Password.RequireDigit = false;
+                option.Password.RequireLowercase = false;
+                option.Password.RequireNonAlphanumeric = false;
+                option.Password.RequireUppercase = false;
 
 
+            })
+                .AddEntityFrameworkStores<UserContext>().AddDefaultTokenProviders();
+            var jwtSettings = configuration.GetSection("JwtSettings");
+            services.AddAuthentication(opt =>
+            {
+                opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                opt.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
 
+                    ValidIssuer = jwtSettings.GetSection("validIssuer").Value,
+                    ValidAudience = jwtSettings.GetSection("validAudience").Value,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.GetSection("securityKey").Value))
+                };
+            });
+        }
     }
 }

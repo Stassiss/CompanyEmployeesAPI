@@ -18,6 +18,7 @@ namespace CompanyEmployeesAPI.Controllers
 {
     [Route("api/companies")]
     [ApiController]
+    [Authorize]
     public class CompaniesController : ControllerBase
     {
         private readonly ILoggerManager _logger;
@@ -49,7 +50,7 @@ namespace CompanyEmployeesAPI.Controllers
         }
         // GET: api/companies
         [HttpGet]
-        [Authorize(Roles = "Administrator")]
+
         public async Task<IActionResult> GetCompanies()
         {
             var companies = await _repository.Company.GetAllCompaniesAsync(trackChanges: false);
@@ -58,6 +59,9 @@ namespace CompanyEmployeesAPI.Controllers
 
             return Ok(companiesDto);
         }
+        [HttpGet("unauthorized")]
+        public IActionResult UnauthorizedTestAction() =>
+           Ok(new { Message = "Access is allowed for unauthorized users" });
         // GET: api/companies/collection/({ids})
         [HttpGet("collection/({ids})", Name = "CompanyCollection")]
         public async Task<IActionResult> GetCompanyCollection([ModelBinder(BinderType =
@@ -141,6 +145,13 @@ namespace CompanyEmployeesAPI.Controllers
             _repository.Company.DeleteCompany(company);
             await _repository.SaveAsync();
             return NoContent();
+        }
+        [HttpGet("Privacy")]
+        [Authorize(Roles = "Administrator")]
+        public IEnumerable<string> Privacy()
+        {
+            var claims = User.Claims.Select(c => $"{c.Type}: {c.Value}").ToList();
+            return claims;
         }
 
     }

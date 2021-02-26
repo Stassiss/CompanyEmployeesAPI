@@ -1,0 +1,24 @@
+﻿@page "/counter"
+@using System.Security.Claims
+
+<AuthorizeView>
+    <Authorized>
+        The user: @context.User.FindFirst(ClaimTypes.Name).Value is authorized
+    </Authorized>
+    <NotAuthorized>
+        The User is not authorized
+    </NotAuthorized>
+</AuthorizeView>
+
+<p>Current count: @currentCount</p>
+
+<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+
+@code {
+    private int currentCount = 0;
+
+    private void IncrementCount()
+    {
+        currentCount++;
+    }
+}

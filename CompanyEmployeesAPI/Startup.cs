@@ -31,7 +31,7 @@ namespace CompanyEmployeesAPI
         public void ConfigureServices(IServiceCollection services)
         {
             services.ConfigureCors();
-            services.ConfigureAuthenticationHandler();
+            services.ConfigureIdentity(Configuration);
             services.ConfigureIISIntegration();
             services.ConfigureLoggerService();
             services.ConfigureDbContext(Configuration);

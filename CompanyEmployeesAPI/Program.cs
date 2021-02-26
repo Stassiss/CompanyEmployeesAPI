@@ -1,5 +1,7 @@
+using Entities.Configurations;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
@@ -13,7 +15,12 @@ namespace CompanyEmployeesAPI
     {
         public static void Main(string[] args)
         {
-            CreateHostBuilder(args).Build().Run();
+            var builder = CreateHostBuilder(args).Build();
+            var config = builder.Services.GetRequiredService<IConfiguration>();
+            var connectionString = config.GetConnectionString("identityConnection");
+            ConfigureUserData.EnsureSeedData(connectionString);
+            builder.Run();
+            //CreateHostBuilder(args).Build().Run();
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
