@@ -3,7 +3,11 @@
 
 <AuthorizeView>
     <Authorized>
-        The user: @context.User.FindFirst(ClaimTypes.Name).Value is authorized
+        The user: @context.User.FindFirst(ClaimTypes.Name).Value @context.User.IsInRole("Admin") is authorized
+        @foreach (var claim in context.User.Claims)
+        {
+            <p>@claim.Type</p> <span /><p>@claim.Value</p>
+        }
     </Authorized>
     <NotAuthorized>
         The User is not authorized

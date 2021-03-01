@@ -3,6 +3,7 @@ using CompanyEmployees.Utility;
 using CompanyEmployeesAPI.ActionFilters;
 using CompanyEmployeesAPI.Extensions;
 using Contracts;
+using Contracts.TokensHelper;
 using Entities.DataTransferObjects;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -13,6 +14,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using NLog;
 using Repository.DataShaping;
+using Repository.TokensHelper;
 using System.IO;
 
 namespace CompanyEmployeesAPI
@@ -56,6 +58,7 @@ namespace CompanyEmployeesAPI
             services.AddScoped<IDataShaper<EmployeeDto>, DataShaper<EmployeeDto>>();
             services.AddScoped<ValidateMediaTypeAttribute>();
             services.AddScoped<EmployeeLinks>();
+            services.AddScoped<ITokenService, TokenService>();
 
         }
 

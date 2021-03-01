@@ -18,7 +18,7 @@ namespace CompanyEmployeesAPI.Controllers
 {
     [Route("api/companies")]
     [ApiController]
-    [Authorize]
+    [Authorize(Roles = "Admin")]
     public class CompaniesController : ControllerBase
     {
         private readonly ILoggerManager _logger;
